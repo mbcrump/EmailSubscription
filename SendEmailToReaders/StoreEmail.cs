@@ -43,7 +43,7 @@ namespace SendEmailToReaders
 
                 table.CreateIfNotExists();
 
-                CreateMessage(table, new Email(postData["fromEmail"], false));
+                CreateMessage(table, new EmailEntity(postData["fromEmail"], false));
 
                 return req.CreateResponse(HttpStatusCode.OK, "Thanks! I've successfully recieved your request. ");
             }
@@ -58,7 +58,7 @@ namespace SendEmailToReaders
 
         }
 
-        static void CreateMessage(CloudTable table, Email newemail)
+        static void CreateMessage(CloudTable table, EmailEntity newemail)
         {
             TableOperation insert = TableOperation.Insert(newemail);
 
@@ -66,23 +66,5 @@ namespace SendEmailToReaders
         }
     }
 
-    class Email : TableEntity
-    {
-
-        public string EmailAddress { get; set; }
-        public bool Unsubscribe { get; set; }
-
-        public Email(string email, bool unsub)
-        {
-            EmailAddress = email;
-            Unsubscribe = unsub;
-            PartitionKey = "SendEmailToReaders";
-            RowKey = Guid.NewGuid().ToString();
-        }
-
-        public Email()
-        {
-
-        }
-    }
+  
 }

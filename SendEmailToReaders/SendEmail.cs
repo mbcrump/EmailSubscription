@@ -9,6 +9,9 @@ using SendGrid.Helpers.Mail;
 using System.ServiceModel.Syndication;
 using System.Linq;
 using System.Configuration;
+using Microsoft.WindowsAzure.Storage.Table;
+using Microsoft.WindowsAzure.Storage;
+using SendGrid.SmtpApi;
 
 namespace SendEmailToReaders
 {
@@ -37,19 +40,37 @@ namespace SendEmailToReaders
 
             msg.SetFrom(new EmailAddress("michael@michaelcrump.net", "Michael Crump Blog"));
 
-            var recipients = new List<EmailAddress>
-                {
-                    new EmailAddress("mbcrump29@gmail.com")//,
-                    //new EmailAddress("more email addresses"),
-                    //new EmailAddress("c@gmail.com")
-                };
-            msg.AddTos(recipients);
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(ConfigurationManager.AppSettings["TableStorageConnString"]);
+            CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
+            CloudTable table = tableClient.GetTableReference("MCBlogSubscribers");
+            table.CreateIfNotExists();
 
+            var header = new Header();
+            List<EmailAddress> recipientlist = GetAllEmailAddresses(table);
+
+            msg.AddTos(recipientlist);
             msg.SetSubject("Weekly Digest for MichaelCrump.net Blog");
 
             msg.AddContent(MimeType.Html, last7days);
+            //TODO: needs to have a header so it doesn't show the list of email addresses
+            //msg.Headers.Add("X-SMTPAPI", header.JsonString());
             var response = await client.SendEmailAsync(msg);
 
+        }
+
+        public static List<EmailAddress> GetAllEmailAddresses(CloudTable table)
+        {
+            var retList = new List<EmailAddress>();
+
+            TableQuery<EmailEntity> query = new TableQuery<EmailEntity>()
+                    .Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, "SendEmailToReaders"));
+
+            foreach (EmailEntity emailname in table.ExecuteQuery(query))
+            {
+                retList.Add(new EmailAddress(emailname.EmailAddress));
+            }
+
+            return retList;
         }
     }
 }
