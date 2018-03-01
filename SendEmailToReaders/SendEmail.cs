@@ -12,6 +12,7 @@ using System.Configuration;
 using Microsoft.WindowsAzure.Storage.Table;
 using Microsoft.WindowsAzure.Storage;
 using SendGrid.SmtpApi;
+using System.Net.Mail;
 
 namespace SendEmailToReaders
 {
@@ -35,39 +36,46 @@ namespace SendEmailToReaders
                 }       
             }
 
-            var client = new SendGridClient(ConfigurationManager.AppSettings["SendGridAPIKey"]);
-            var msg = new SendGridMessage();
-
-            msg.SetFrom(new EmailAddress("michael@michaelcrump.net", "Michael Crump Blog"));
-
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(ConfigurationManager.AppSettings["TableStorageConnString"]);
             CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
             CloudTable table = tableClient.GetTableReference("MCBlogSubscribers");
             table.CreateIfNotExists();
 
             var header = new Header();
-            List<EmailAddress> recipientlist = GetAllEmailAddresses(table);
 
-            msg.AddTos(recipientlist);
-            msg.SetSubject("Weekly Digest for MichaelCrump.net Blog");
+            SmtpClient client = new SmtpClient();
+            client.Port = 587;
+            client.Host = "smtp.sendgrid.net";
+            client.Timeout = 10000;
+            client.DeliveryMethod = SmtpDeliveryMethod.Network;
+            client.UseDefaultCredentials = false;
+            client.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["SendGridUserName"], ConfigurationManager.AppSettings["SendGridSecret"]);
 
-            msg.AddContent(MimeType.Html, last7days);
-            //TODO: needs to have a header so it doesn't show the list of email addresses
-            //msg.Headers.Add("X-SMTPAPI", header.JsonString());
-            var response = await client.SendEmailAsync(msg);
+            MailMessage mail = new MailMessage();
+            List<string> recipientlist = GetAllEmailAddresses(table);
+            header.SetTo(recipientlist);
+            mail.From = new MailAddress("michael@michaelcrump.net", "Azure Tips and Tricks");
+            mail.To.Add("no-reply@michaelcrump.net");
+            mail.Subject = "Please work";
+            mail.Body = "this is my test email body";
+            mail.Headers.Add("X-SMTPAPI", header.JsonString());
+
+            await client.SendMailAsync(mail);
+
+            mail.Dispose();
 
         }
 
-        public static List<EmailAddress> GetAllEmailAddresses(CloudTable table)
+        public static List<string> GetAllEmailAddresses(CloudTable table)
         {
-            var retList = new List<EmailAddress>();
+            var retList = new List<string>();
 
             TableQuery<EmailEntity> query = new TableQuery<EmailEntity>()
                     .Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, "SendEmailToReaders"));
 
             foreach (EmailEntity emailname in table.ExecuteQuery(query))
             {
-                retList.Add(new EmailAddress(emailname.EmailAddress));
+                retList.Add(emailname.EmailAddress);
             }
 
             return retList;
