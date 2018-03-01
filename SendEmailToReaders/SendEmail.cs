@@ -13,6 +13,7 @@ using Microsoft.WindowsAzure.Storage.Table;
 using Microsoft.WindowsAzure.Storage;
 using SendGrid.SmtpApi;
 using System.Net.Mail;
+using System.Text;
 
 namespace SendEmailToReaders
 {
@@ -56,8 +57,15 @@ namespace SendEmailToReaders
             header.SetTo(recipientlist);
             mail.From = new MailAddress("michael@michaelcrump.net", "Azure Tips and Tricks");
             mail.To.Add("no-reply@michaelcrump.net");
-            mail.Subject = "Please work";
-            mail.Body = "this is my test email body";
+            mail.Subject = "Weekly Digest for MichaelCrump.net Blog";
+            mail.BodyEncoding = Encoding.UTF8;
+            mail.SubjectEncoding = Encoding.UTF8;
+
+            AlternateView htmlView = AlternateView.CreateAlternateViewFromString(last7days);
+            htmlView.ContentType = new System.Net.Mime.ContentType("text/html");
+            mail.AlternateViews.Add(htmlView);
+            mail.Body = "Please enable HTML in order to view the message";
+
             mail.Headers.Add("X-SMTPAPI", header.JsonString());
 
             await client.SendMailAsync(mail);
