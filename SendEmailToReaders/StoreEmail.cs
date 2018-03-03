@@ -43,7 +43,7 @@ namespace SendEmailToReaders
 
                 table.CreateIfNotExists();
 
-                CreateMessage(table, new EmailEntity(postData["fromEmail"], false));
+                CreateMessage(table, new EmailEntity(postData["fromEmail"]));
 
                 return req.CreateResponse(HttpStatusCode.OK, "Thanks! I've successfully received your request. "); //
             }

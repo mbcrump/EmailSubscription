@@ -11,12 +11,10 @@ namespace SendEmailToReaders
     {
 
         public string EmailAddress { get; set; }
-        public bool Unsubscribe { get; set; }
 
-        public EmailEntity(string email, bool unsub)
+        public EmailEntity(string email)
         {
             EmailAddress = email;
-            Unsubscribe = unsub;
             PartitionKey = "SendEmailToReaders";
             RowKey = Guid.NewGuid().ToString();
         }

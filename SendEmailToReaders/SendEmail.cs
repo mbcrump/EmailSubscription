@@ -29,6 +29,8 @@ namespace SendEmailToReaders
             XmlReader reader = XmlReader.Create(feedurl);
             SyndicationFeed feed = SyndicationFeed.Load(reader);
             reader.Close();
+
+            last7days = last7days + "<b>New updates in the last 7 days:</b><br><br>";
             foreach (SyndicationItem item in feed.Items)
             {
                 if ((DateTime.Now - item.PublishDate).TotalDays < 7)
@@ -36,6 +38,7 @@ namespace SendEmailToReaders
                     last7days = last7days + "<a href=\"" + item.Links[0].Uri + "\">" + item.Title.Text + "</a><br>";
                 }       
             }
+
 
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(ConfigurationManager.AppSettings["TableStorageConnString"]);
             CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
