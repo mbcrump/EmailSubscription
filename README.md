@@ -21,6 +21,10 @@ After poking around for a bit, I landed on the following:
 * [HTTP Trigger with Azure Functions](https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-http-webhook) to collect POST data coming from my website that contains the email address that someone types in. 
 * [Visual Studio and the C# Language](https://www.visualstudio.com/) 
 
+## Try it Live
+
+Subscribe to my Weekly Digest of my blog and try out the form [here](https://www.michaelcrump.net/about/emailsub.html)
+
 ## Contact info
 
 [Twitter - DMs open](http://twitter.com/mbcrump)
