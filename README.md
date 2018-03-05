@@ -9,7 +9,7 @@ by: [Michael Crump](http://twitter.com/mbcrump)
 
 Below is a demo:
 
-![image](https://github.com/mbcrump/FirstGoogleWearableApp/blob/master/demo.gif)
+![image](https://github.com/mbcrump/EmailSubscription/blob/master/demo.gif)
 
 ## Technology Stack
 
