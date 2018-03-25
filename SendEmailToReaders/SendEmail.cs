@@ -20,7 +20,7 @@ namespace SendEmailToReaders
     public static class SendEmail
     {
         [FunctionName("SendEmail")]
-        public static async Task Run([TimerTrigger("0 */1 * * * *")]TimerInfo myTimer, TraceWriter log)
+        public static async Task Run([TimerTrigger("0 30 9 * * SUN")]TimerInfo myTimer, TraceWriter log)
         {
 
             string feedurl = "https://www.michaelcrump.net/feed.xml";
