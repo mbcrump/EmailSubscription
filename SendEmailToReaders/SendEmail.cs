@@ -20,7 +20,7 @@ namespace SendEmailToReaders
     public static class SendEmail
     {
         [FunctionName("SendEmail")]
-        public static async Task Run([TimerTrigger("0 30 9 * * SUN")]TimerInfo myTimer, TraceWriter log)
+        public static async Task Run([TimerTrigger("0 */1 * * * *")]TimerInfo myTimer, TraceWriter log)
         {
 
             string feedurl = "https://www.michaelcrump.net/feed.xml";
@@ -28,17 +28,34 @@ namespace SendEmailToReaders
 
             XmlReader reader = XmlReader.Create(feedurl);
             SyndicationFeed feed = SyndicationFeed.Load(reader);
-            reader.Close();
+            
 
             last7days = last7days + "<b>New updates in the last 7 days:</b><br><br>";
             foreach (SyndicationItem item in feed.Items)
             {
-                if ((DateTime.Now - item.PublishDate).TotalDays < 7)
+                if ((DateTime.Now - item.PublishDate).TotalDays < 8)
                 {
                     last7days = last7days + "<a href=\"" + item.Links[0].Uri + "\">" + item.Title.Text + "</a><br>";
                 }       
             }
 
+            
+            reader.Close();
+
+            feedurl = "https://www.youtube.com/feeds/videos.xml?channel_id=UCi00MP5k2uxC3ZFxylwQtuA";
+            XmlReader reader1 = XmlReader.Create(feedurl);
+            SyndicationFeed feed1 = SyndicationFeed.Load(reader1);
+            
+            
+            foreach (SyndicationItem item in feed1.Items)
+            {
+                if ((DateTime.Now - item.PublishDate).TotalDays < 8)
+                {
+                    last7days = last7days + "<a href=\"" + item.Links[0].Uri + "\">" + "[New Video available] - " + item.Title.Text + "</a><br>";
+                }
+            }
+
+            reader1.Close();
 
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(ConfigurationManager.AppSettings["TableStorageConnString"]);
             CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
@@ -58,9 +75,9 @@ namespace SendEmailToReaders
             MailMessage mail = new MailMessage();
             List<string> recipientlist = GetAllEmailAddresses(table);
             header.SetTo(recipientlist);
-            mail.From = new MailAddress("michael@michaelcrump.net", "Azure Tips and Tricks");
+            mail.From = new MailAddress("michael@michaelcrump.net", "MichaelCrump.NET");
             mail.To.Add("no-reply@michaelcrump.net");
-            mail.Subject = "Weekly Digest for MichaelCrump.net Blog";
+            mail.Subject = "Weekly Digest for MichaelCrump.net Blog and YouTube channel";
             mail.BodyEncoding = Encoding.UTF8;
             mail.SubjectEncoding = Encoding.UTF8;
 
