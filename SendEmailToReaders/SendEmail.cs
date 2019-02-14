@@ -42,7 +42,7 @@ namespace SendEmailToReaders
             
             reader.Close();
 
-            feedurl = "https://www.youtube.com/feeds/videos.xml?channel_id=UCi00MP5k2uxC3ZFxylwQtuA";
+            feedurl = "https://www.youtube.com/feeds/videos.xml?playlist_id=PLLasX02E8BPCNCK8Thcxu-Y-XcBUbhFWC";
             XmlReader reader1 = XmlReader.Create(feedurl);
             SyndicationFeed feed1 = SyndicationFeed.Load(reader1);
             
@@ -75,9 +75,9 @@ namespace SendEmailToReaders
             MailMessage mail = new MailMessage();
             List<string> recipientlist = GetAllEmailAddresses(table);
             header.SetTo(recipientlist);
-            mail.From = new MailAddress("michael@michaelcrump.net", "MichaelCrump.NET");
+            mail.From = new MailAddress("michael@michaelcrump.net", "MichaelCrump.net");
             mail.To.Add("no-reply@michaelcrump.net");
-            mail.Subject = "Weekly Digest for MichaelCrump.net Blog and YouTube channel";
+            mail.Subject = "Weekly Digest for MichaelCrump.net Blog and Azure Tips and Tricks";
             mail.BodyEncoding = Encoding.UTF8;
             mail.SubjectEncoding = Encoding.UTF8;
 
