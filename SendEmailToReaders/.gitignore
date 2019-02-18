@@ -10,10 +10,17 @@ local.settings.json
 *.userosscache
 *.sln.docstates
 
+# Publish Web Output
+*.[Pp]ublish.xml
+*.azurePubxml
+*.pubxml
+*.publishproj
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
 # Build results
+
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/
