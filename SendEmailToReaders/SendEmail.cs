@@ -20,11 +20,13 @@ namespace SendEmailToReaders
     public static class SendEmail
     {
         [FunctionName("SendEmail")]
-        public static async Task Run([TimerTrigger("0 30 9 * * SUN")]TimerInfo myTimer, TraceWriter log)
-       // public static async Task Run([TimerTrigger("0 */1 * * * *")]TimerInfo myTimer, TraceWriter log)
+      public static async Task Run([TimerTrigger("0 30 9 * * SUN")]TimerInfo myTimer, TraceWriter log)
+       //public static async Task Run([TimerTrigger("0 */1 * * * *")]TimerInfo myTimer, TraceWriter log)
         {
 
-            string feedurl = "https://www.michaelcrump.net/feed.xml";
+
+            //string feedurl = "https://www.michaelcrump.net/feed.xml";
+            string feedurl = "https://microsoft.github.io/AzureTipsAndTricks/rss.xml";
             string last7days = "";
 
             XmlReader reader = XmlReader.Create(feedurl);
@@ -43,7 +45,8 @@ namespace SendEmailToReaders
 
             reader.Close();
 
-            feedurl = "https://podsync.net/Z1F8nb1tN";
+          
+            feedurl = "http://fetchrss.com/rss/5cb90f018a93f83d098b45675cb90ed88a93f829098b4567.xml";
             //original youtube playlist feed url
             //feedurl = "https://www.youtube.com/feeds/videos.xml?playlist_id=PLLasX02E8BPCNCK8Thcxu-Y-XcBUbhFWC";
             XmlReader reader1 = XmlReader.Create(feedurl);
@@ -54,7 +57,7 @@ namespace SendEmailToReaders
             {
                 if ((DateTime.Now - item.PublishDate).TotalDays < 8)
                 {
-                    last7days = last7days + "<a href=\"" + item.Links[0].Uri + "\">" + "[New Video available] - " + item.Title.Text + "</a><br>";
+                    last7days = last7days + "<a href=\"" + item.Links[0].Uri + "\">" + "Azure Tips and Tricks Videos - " + item.Title.Text.Replace(" | Azure Tips and Tricks", "") + " </a><br>";
                 }
             }
 
@@ -74,7 +77,6 @@ namespace SendEmailToReaders
             client.DeliveryMethod = SmtpDeliveryMethod.Network;
             client.UseDefaultCredentials = false;
             client.Credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["SendGridUserName"], ConfigurationManager.AppSettings["SendGridSecret"]);
-
             MailMessage mail = new MailMessage();
 
             List<string> recipientlist = GetAllEmailAddresses(table);
